@@ -10,7 +10,7 @@ import org.junit.Test
 
 class PostgreSqlTest {
 
-  val connPostgres = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres")
+  val connPostgres = DriverManager.getConnection("jdbc:tc:postgresql:9.6.8:///postgres")
   lateinit var connMyDb: Connection
   lateinit var driver: JdbcDriver
   lateinit var database: MyDatabase
@@ -19,7 +19,7 @@ class PostgreSqlTest {
   fun before() {
     connPostgres.prepareStatement("CREATE DATABASE my_db;").execute()
 
-    connMyDb = DriverManager.getConnection("jdbc:postgresql://localhost:5432/my_db")
+    connMyDb = DriverManager.getConnection("jdbc:tc:postgresql:9.6.8:///my_db")
     driver = object : JdbcDriver() {
       override fun getConnection() = connMyDb
     }
