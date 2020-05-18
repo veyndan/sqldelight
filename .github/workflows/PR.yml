@@ -25,13 +25,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: Cache gradle
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+#      - name: Cache gradle
+#        uses: actions/cache@v1
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+#          restore-keys: |
+#            ${{ runner.os }}-gradle-
       - name: Cache intellij download
         uses: actions/cache@v1
         with:
@@ -43,19 +43,19 @@ jobs:
 
       - name: Run ubuntu tests
         if: matrix.os == 'ubuntu-latest'
-        run: ./gradlew build --stacktrace
+        run: ./gradlew clean build --stacktrace
       - name: Run windows tests
         if: matrix.os == 'windows-latest'
-        run: ./gradlew mingwTest --stacktrace
+        run: ./gradlew clean mingwTest --stacktrace
       - name: Run instrumentation tests
         if: matrix.job == 'instrumentation'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew connectedCheck :sqldelight-gradle-plugin:build --stacktrace -PInstrumentation
+          script: ./gradlew clean connectedCheck :sqldelight-gradle-plugin:build --stacktrace -PInstrumentation
       - name: Run ios tests
         if: matrix.os == 'macOS-latest' && matrix.job == 'test'
-        run: ./gradlew iosX64Test --stacktrace
+        run: ./gradlew clean iosX64Test --stacktrace
 
       - name: Bundle the build report
         if: failure()
