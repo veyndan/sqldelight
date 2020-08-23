@@ -67,6 +67,7 @@ private fun PostgreSqlTypeName.type(): IntermediateType {
     serialDataType != null -> IntermediateType(IntermediateType.SqliteType.INTEGER, INT)
     bigSerialDataType != null -> IntermediateType(IntermediateType.SqliteType.INTEGER, LONG)
     dateDataType != null -> IntermediateType(IntermediateType.SqliteType.TEXT)
+    booleanDataType != null -> IntermediateType(IntermediateType.SqliteType.INTEGER, BOOLEAN)
     jsonDataType != null -> IntermediateType(IntermediateType.SqliteType.TEXT)
     else -> throw IllegalArgumentException("Unknown kotlin type for sql type ${this.text}")
   }
