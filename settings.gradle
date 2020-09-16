@@ -25,3 +25,9 @@ include ':sqldelight-gradle-plugin'
 include ':sqldelight-idea-plugin'
 include ':sqlite-migrations'
 include ':test-util'
+
+includeBuild('../sql-psi') {
+  dependencySubstitution {
+    substitute module("com.alecstrong:sqlite-psi-core") with project(":core")
+  }
+}

@@ -11,6 +11,9 @@ buildscript {
     maven {
       url 'https://jitpack.io'
     }
+    maven {
+      url "https://maven.global.square/artifactory/square-public"
+    }
   }
 
   dependencies {
