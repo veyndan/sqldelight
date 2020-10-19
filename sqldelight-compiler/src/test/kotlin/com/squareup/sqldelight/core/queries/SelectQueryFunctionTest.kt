@@ -314,7 +314,7 @@ class SelectQueryFunctionTest {
       |""${'"'}.trimMargin()) { cursor ->
       |  mapper(
       |    cursor.getLong(0)!!,
-      |    cursor.getLong(1)?.let(com.squareup.sqldelight.BooleanColumnAdapter::decode)
+      |    cursor.getLong(1)
       |  )
       |}
       |
@@ -448,7 +448,7 @@ class SelectQueryFunctionTest {
       ||SELECT *
       ||FROM data
       |""${'"'}.trimMargin()) { cursor ->
-      |  com.squareup.sqldelight.BooleanColumnAdapter.decode(cursor.getLong(0)!!)
+      |  cursor.getLong(0)!!
       |}
       |
       """.trimMargin())
@@ -473,7 +473,7 @@ class SelectQueryFunctionTest {
       ||SELECT *
       ||FROM data
       |""${'"'}.trimMargin()) { cursor ->
-      |  com.squareup.sqldelight.IntColumnAdapter.decode(cursor.getLong(0)!!)
+      |  cursor.getLong(0)!!
       |}
       |
       """.trimMargin())
@@ -499,7 +499,7 @@ class SelectQueryFunctionTest {
       ||FROM data
       |""${'"'}.trimMargin()) { cursor ->
       |  mapper(
-      |    cursor.getLong(0)?.let(com.squareup.sqldelight.IntColumnAdapter::decode)
+      |    cursor.getLong(0)
       |  )
       |}
       |
@@ -730,7 +730,7 @@ class SelectQueryFunctionTest {
       |    cursor.getLong(0)!!,
       |    cursor.getString(1)!!,
       |    cursor.getString(2)!!,
-      |    com.squareup.sqldelight.BooleanColumnAdapter.decode(cursor.getLong(3)!!),
+      |    cursor.getLong(3)!!,
       |    cursor.getString(4)!!
       |  )
       |}
@@ -940,7 +940,7 @@ class SelectQueryFunctionTest {
     assertThat(generator.customResultTypeFunction().toString()).isEqualTo("""
       |override fun <T : kotlin.Any> searchDescription(value: kotlin.String, mapper: (model_id: kotlin.Int, model_description: kotlin.String) -> T): com.squareup.sqldelight.Query<T> = SearchDescriptionQuery(value) { cursor ->
       |  mapper(
-      |    com.squareup.sqldelight.IntColumnAdapter.decode(cursor.getLong(0)!!),
+      |    cursor.getLong(0)!!,
       |    cursor.getString(1)!!
       |  )
       |}

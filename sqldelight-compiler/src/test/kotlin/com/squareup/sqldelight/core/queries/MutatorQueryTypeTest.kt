@@ -31,7 +31,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data
       |  |VALUES (?, ?)
       |  ""${'"'}.trimMargin(), 2) {
-      |    bindLong(1, id?.let { com.squareup.sqldelight.IntColumnAdapter.encode(it) })
+      |    bindLong(1, id)
       |    bindString(2, value?.let { database.dataAdapter.valueAdapter.encode(it) })
       |  }
       |}
@@ -76,7 +76,7 @@ class MutatorQueryTypeTest {
       |  |WHERE packageName = ?
       |  |  AND className = ?
       |  ""${'"'}.trimMargin(), 4) {
-      |    bindLong(1, com.squareup.sqldelight.BooleanColumnAdapter.encode(deprecated))
+      |    bindLong(1, deprecated)
       |    bindString(2, link)
       |    bindString(3, packageName)
       |    bindString(4, className)
@@ -111,7 +111,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data
       |  |VALUES (?, ?)
       |  ""${'"'}.trimMargin(), 2) {
-      |    bindLong(1, id?.let { com.squareup.sqldelight.IntColumnAdapter.encode(it) })
+      |    bindLong(1, id)
       |    bindString(2, value?.let { database.dataAdapter.valueAdapter.encode(it) })
       |  }
       |  notifyQueries(${mutator.id}, {database.dataQueries.selectForId})
@@ -147,7 +147,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data
       |  |VALUES (?, ?)
       |  ""${'"'}.trimMargin(), 2) {
-      |    bindLong(1, id?.let { com.squareup.sqldelight.IntColumnAdapter.encode(it) })
+      |    bindLong(1, id)
       |    bindString(2, value?.let { database.dataAdapter.valueAdapter.encode(it) })
       |  }
       |  notifyQueries(${mutator.id}, {database.otherDataQueries.selectForId})
@@ -192,7 +192,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data
       |  |VALUES (?, ?)
       |  ""${'"'}.trimMargin(), 2) {
-      |    bindLong(1, id?.let { com.squareup.sqldelight.IntColumnAdapter.encode(it) })
+      |    bindLong(1, id)
       |    bindString(2, value?.let { database.dataAdapter.valueAdapter.encode(it) })
       |  }
       |}
@@ -220,7 +220,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data
       |  |VALUES (?, ?)
       |  ""${'"'}.trimMargin(), 2) {
-      |    bindLong(1, id?.let { com.squareup.sqldelight.IntColumnAdapter.encode(it) })
+      |    bindLong(1, id)
       |    bindString(2, value?.let { database.dataAdapter.valueAdapter.encode(it) })
       |  }
       |}
@@ -291,7 +291,7 @@ class MutatorQueryTypeTest {
       |  |INSERT INTO data (value)
       |  |VALUES (?)
       |  ""${'"'}.trimMargin(), 1) {
-      |    bindLong(1, com.squareup.sqldelight.BooleanColumnAdapter.encode(value))
+      |    bindLong(1, value)
       |  }
       |}
       |""".trimMargin())
@@ -390,7 +390,7 @@ class MutatorQueryTypeTest {
       |  driver.execute(${mutator.id}, ""${'"'}INSERT OR FAIL INTO item(packageName, className, deprecated, link) VALUES (?, ?, ?, ?)""${'"'}, 4) {
       |    bindString(1, packageName)
       |    bindString(2, className)
-      |    bindLong(3, com.squareup.sqldelight.BooleanColumnAdapter.encode(deprecated))
+      |    bindLong(3, deprecated)
       |    bindString(4, link)
       |  }
       |  notifyQueries(${mutator.id}, {database.dataQueries.queryTerm})
