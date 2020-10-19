@@ -21,6 +21,7 @@ import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.intellij.psi.util.PsiTreeUtil
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.INT
@@ -79,27 +80,14 @@ internal data class IntermediateType(
   fun preparedStatementBinder(
     columnIndex: String
   ): CodeBlock {
-    val name = if (javaType.isNullable) "it" else this.name
-    val value = (column?.columnType as ColumnTypeMixin?)?.adapter()?.let { adapter ->
-      val adapterName = PsiTreeUtil.getParentOfType(column, Queryable::class.java)!!.tableExposed().adapterName
-      CodeBlock.of("$CUSTOM_DATABASE_NAME.$adapterName.%N.encode($name)", adapter)
-    } ?: when (javaType.copy(nullable = false)) {
-      FLOAT -> CodeBlock.of("$name.toDouble()")
-      BYTE -> CodeBlock.of("$name.toLong()")
-      SHORT -> CodeBlock.of("$name.toLong()")
-      INT -> CodeBlock.of("$name.toLong()")
-      BOOLEAN -> CodeBlock.of("if ($name) 1L else 0L")
-      else -> {
-        return dialectType.prepareStatementBinder(columnIndex, CodeBlock.of(this.name))
-      }
-    }
+    var value = CodeBlock.of(this.name)
 
-    if (javaType.isNullable) {
-      return dialectType.prepareStatementBinder(columnIndex, CodeBlock.builder()
-          .add("${this.name}?.let { ")
-          .add(value)
-          .add(" }")
-          .build())
+    (defaultColumnAdapter() ?: columnAdapter())?.let {
+      value = if (javaType.isNullable) {
+        CodeBlock.of("%L?.let { %L.encode(it) }", value, it)
+      } else {
+        CodeBlock.of("%L.encode(%L)", it, value)
+      }
     }
 
     return dialectType.prepareStatementBinder(columnIndex, value)
@@ -112,29 +100,31 @@ internal data class IntermediateType(
       cursorGetter = CodeBlock.of("$cursorGetter!!")
     }
 
-    cursorGetter = when (javaType) {
-      FLOAT -> CodeBlock.of("$cursorGetter.toFloat()")
-      FLOAT.copy(nullable = true) -> CodeBlock.of("$cursorGetter?.toFloat()")
-      BYTE -> CodeBlock.of("$cursorGetter.toByte()")
-      BYTE.copy(nullable = true) -> CodeBlock.of("$cursorGetter?.toByte()")
-      SHORT -> CodeBlock.of("$cursorGetter.toShort()")
-      SHORT.copy(nullable = true) -> CodeBlock.of("$cursorGetter?.toShort()")
-      INT -> CodeBlock.of("$cursorGetter.toInt()")
-      INT.copy(nullable = true) -> CodeBlock.of("$cursorGetter?.toInt()")
-      BOOLEAN -> CodeBlock.of("$cursorGetter == 1L")
-      BOOLEAN.copy(nullable = true) -> CodeBlock.of("$cursorGetter?.let { it == 1L }")
-      else -> cursorGetter
-    }
-
-    (column?.columnType as ColumnTypeMixin?)?.adapter()?.let { adapter ->
-      val adapterName = PsiTreeUtil.getParentOfType(column, Queryable::class.java)!!.tableExposed().adapterName
+   (defaultColumnAdapter() ?: columnAdapter())?.let {
       cursorGetter = if (javaType.isNullable) {
-        CodeBlock.of("%L?.let($CUSTOM_DATABASE_NAME.$adapterName.%N::decode)", cursorGetter, adapter)
+        CodeBlock.of("%L?.let(%L::decode)", cursorGetter, it)
       } else {
-        CodeBlock.of("$CUSTOM_DATABASE_NAME.$adapterName.%N.decode(%L)", adapter, cursorGetter)
+        CodeBlock.of("%L.decode(%L)", it, cursorGetter)
       }
     }
 
     return cursorGetter
   }
+
+  private fun columnAdapter(): CodeBlock? = (column?.columnType as ColumnTypeMixin?)?.adapter()?.let { adapter ->
+    val adapterName = PsiTreeUtil.getParentOfType(column, Queryable::class.java)!!.tableExposed().adapterName
+    CodeBlock.of("$CUSTOM_DATABASE_NAME.$adapterName.%N", adapter)
+  }
+
+  private fun defaultColumnAdapter(): CodeBlock? {
+    return JAVA_TYPE_TO_COLUMN_ADAPTER_TYPE[javaType.copy(nullable = false)]?.let { CodeBlock.of("%T", it) }
+  }
 }
+
+private val JAVA_TYPE_TO_COLUMN_ADAPTER_TYPE = mapOf(
+  FLOAT to ClassName("com.squareup.sqldelight", "FloatColumnAdapter"),
+  BYTE to ClassName("com.squareup.sqldelight", "ByteColumnAdapter"),
+  SHORT to ClassName("com.squareup.sqldelight", "ShortColumnAdapter"),
+  INT to ClassName("com.squareup.sqldelight", "IntColumnAdapter"),
+  BOOLEAN to ClassName("com.squareup.sqldelight", "BooleanColumnAdapter")
+)
