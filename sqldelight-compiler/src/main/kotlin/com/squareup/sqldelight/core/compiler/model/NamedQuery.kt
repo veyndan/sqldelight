@@ -155,7 +155,11 @@ data class NamedQuery(
         typeOne.cursorGetter(0) != typeTwo.cursorGetter(0) &&
         typeOne.column != null && typeTwo.column != null) {
       // Incompatible adapters. Revert to unadapted java type.
-      return IntermediateType(dialectType = typeOne.dialectType, name = typeOne.name).nullableIf(nullable)
+      return if (typeOne.javaType.copy(nullable = false) == typeTwo.javaType.copy(nullable = false)) {
+        typeOne.copy(assumedCompatibleTypes = listOf(typeOne, typeTwo)).nullableIf(nullable)
+      } else {
+        IntermediateType(dialectType = typeOne.dialectType, name = typeOne.name).nullableIf(nullable)
+      }
     }
 
     return typeOne.nullableIf(nullable)
