@@ -29,13 +29,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: Cache gradle
-        uses: actions/cache@v2.1.0
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+#      - name: Cache gradle
+#        uses: actions/cache@v2.1.0
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+#          restore-keys: |
+#            ${{ runner.os }}-gradle-
 
       - name: Run gradle tests
         if: matrix.os == 'ubuntu-latest' && matrix.job == 'test'
